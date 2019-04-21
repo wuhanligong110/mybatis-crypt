@@ -29,13 +29,9 @@ import com.zhuojl.mybatis.plugin.crypt.resolver.MethodCryptMetadataBuilder;
 public class CryptInterceptor implements Interceptor {
 
     /**
-     * true表示默认加密出参，false表示只认注解
+     * 加解密执行器
      */
-    private Boolean encryptWithOutAnnotation;
-    /**
-     * true表示默认解密出参，false表示只认注解
-     */
-    private Boolean decryptWithOutAnnotation;
+    private String cryptExecutor;
 
     /**
      * XXX 设置为public 主要是因为 多个单元测试之间类静态变量共享，需要清缓存
@@ -56,7 +52,7 @@ public class CryptInterceptor implements Interceptor {
 
     private MethodCryptMetadata getCachedMethodCryptMetaData(MappedStatement mappedStatement) {
         return METHOD_ENCRYPT_MAP.computeIfAbsent(mappedStatement.getId(), id ->
-            new MethodCryptMetadataBuilder(id, encryptWithOutAnnotation, decryptWithOutAnnotation).build()
+            new MethodCryptMetadataBuilder(id, cryptExecutor).build()
         );
     }
 
@@ -67,8 +63,7 @@ public class CryptInterceptor implements Interceptor {
 
     @Override
     public void setProperties(Properties properties) {
-        encryptWithOutAnnotation = Boolean.valueOf(properties.getProperty("encryptWithOutAnnotation", "false"));
-        decryptWithOutAnnotation = Boolean.valueOf(properties.getProperty("decryptWithOutAnnotation", "false"));
+        cryptExecutor = properties.getProperty("cryptExecutor", "AES10Executor");
     }
 
 }

@@ -25,13 +25,11 @@ public class MethodCryptMetadataBuilder {
     private static final MethodDecryptResolver EMPTY_DECRYPT_RESOLVER = new EmptyMethodDecryptResolver();
 
     private String statementId;
-    private Boolean encryptWithOutAnnotation;
-    private Boolean decryptWithOutAnnotation;
+    private String cryptExecutor;
 
-    public MethodCryptMetadataBuilder(String statementId, Boolean encryptWithOutAnnotation, Boolean decryptWithOutAnnotation) {
+    public MethodCryptMetadataBuilder(String statementId, String cryptExecutor) {
         this.statementId = statementId;
-        this.encryptWithOutAnnotation = encryptWithOutAnnotation;
-        this.decryptWithOutAnnotation = decryptWithOutAnnotation;
+        this.cryptExecutor = cryptExecutor;
     }
 
     public MethodCryptMetadata build() {
@@ -54,7 +52,7 @@ public class MethodCryptMetadataBuilder {
         // 方法有加密注解的参数
         List<MethodAnnotationEncryptParameter> methodEncryptParamList = getCryptParams(m);
 
-        if (encryptWithOutAnnotation && methodEncryptParamList.size() == 0) {
+        if (methodEncryptParamList.size() == 0) {
             // 如果有多个参数
             if (parameters.length == 0) {
                 return EMPTY_ENCRYPT_RESOLVER;
@@ -79,11 +77,7 @@ public class MethodCryptMetadataBuilder {
         }
         final CryptField cryptField = m.getAnnotation(CryptField.class);
 
-        if (decryptWithOutAnnotation || cryptField != null) {
-            return new SimpleMethodDecryptResolver(cryptField);
-        }
-
-        return EMPTY_DECRYPT_RESOLVER;
+        return new SimpleMethodDecryptResolver(cryptField);
     }
 
     private List<MethodAnnotationEncryptParameter> getCryptParams(Method m) {
@@ -98,10 +92,6 @@ public class MethodCryptMetadataBuilder {
         Param param = null;
         CryptField crypt = null;
         for (int i = 0; i < parameters.length; i++) {
-            boolean isSpecial = false;
-            if (isSpecial) {
-                continue;
-            }
             if (CryptUtil.inIgnoreClass(parameters[i].getType())) {
                 continue;
             }
@@ -121,8 +111,8 @@ public class MethodCryptMetadataBuilder {
             param = null;
         }
 
-        // 如果没有注解加密，如果默认加密，且只有一个参数，且是list，array， collection，相当于加了注解
-        if (paramList.size() == 0 && encryptWithOutAnnotation && parameters.length == 1) {
+        // 如果没有注解加密，且只有一个参数，且是list，array， collection，相当于加了注解
+        if (paramList.size() == 0 && parameters.length == 1) {
             String name;
             if (parameters[0].getType().isAssignableFrom(List.class)) {
                 name = getParameterNameOrDefault(paramAnnotations[0], "list");

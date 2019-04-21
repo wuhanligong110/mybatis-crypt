@@ -24,10 +24,11 @@ public interface Mapper {
 
     void batchInsert(List<User> user);
 
-    void batchInsertArray(@Param("arrayName") User[] user);
+    void batchInsertArray(User[] user);
 
-    List<User> listUserWithMultipleParam(@Param("user1") User user1, @Param("user2") User user2,
-        @Param("userList") @CryptField List<User> userList);
+    List<User> listUserWithMultipleParam(User user1, User user2, List<User> userList);
+
+    void insertWithPro(String name,String phone);
 
 
 
